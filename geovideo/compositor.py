@@ -323,13 +323,13 @@ class Compositor:
 
         bottom_y = height - 210
         draw.rectangle((0, bottom_y, width, height), fill=(0, 0, 0, 185))
-        subtitle = self.config.style.subtitle or "Một phút giới thiệu tiện ích quanh khu đất"
+        subtitle = self.config.style.subtitle or "A quick tour of local amenities"
         draw.text((24, bottom_y + 18), self.config.style.social_account_label, font=self.small_font, fill=(255, 255, 255, 230))
         draw.text((24, bottom_y + 56), subtitle, font=self.small_font, fill=(245, 245, 245, 220))
 
         comment_y = height - 102
         draw.rounded_rectangle((24, comment_y, width - 24, comment_y + 72), radius=35, fill=(18, 18, 18, 240))
-        draw.text((52, comment_y + 19), "Thêm bình luận...", font=self.small_font, fill=(205, 205, 205, 235))
+        draw.text((52, comment_y + 19), "Add a comment...", font=self.small_font, fill=(205, 205, 205, 235))
 
     def _draw_profile_icon(self, draw: ImageDraw.ImageDraw, x: int, y: int) -> None:
         draw.ellipse((x - 34, y - 34, x + 34, y + 34), fill=(210, 240, 255, 225))
