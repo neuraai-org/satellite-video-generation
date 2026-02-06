@@ -32,6 +32,7 @@
   },
   "provider": {
     "name": "osm",
+    "user_agent": "geovideo/0.1 (+mailto:you@example.com)",
     "cache_dir": ".cache/tiles",
     "max_retries": 3,
     "throttle_s": 0.15

@@ -79,6 +79,7 @@ class ProviderConfig(BaseModel):
     name: Literal["osm", "mapbox", "custom"] = "osm"
     api_key: Optional[str] = None
     url_template: Optional[str] = None
+    user_agent: Optional[str] = None
     cache_dir: str = ".cache/tiles"
     max_retries: int = 3
     throttle_s: float = 0.1

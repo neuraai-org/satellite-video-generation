@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import random
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -95,6 +96,7 @@ def render(
     provider: Optional[str] = typer.Option(None, "--provider"),
     api_key: Optional[str] = typer.Option(None, "--api-key"),
     cache_dir: Optional[str] = typer.Option(None, "--cache-dir"),
+    user_agent: Optional[str] = typer.Option(None, "--user-agent"),
     seed: Optional[int] = typer.Option(None, "--seed"),
     fit: str = typer.Option("all", "--fit"),
     verbose: bool = typer.Option(False, "--verbose"),
@@ -116,6 +118,8 @@ def render(
         config.provider.api_key = api_key
     if cache_dir:
         config.provider.cache_dir = cache_dir
+    if user_agent:
+        config.provider.user_agent = user_agent
     config = InputConfig.model_validate(config.model_dump())
     _render_video(config, seed, fit, verbose)
 
@@ -142,6 +146,30 @@ def preview(
 def validate(input: Path = typer.Option(..., "--input", exists=True)) -> None:
     _ = _load_config(input)
     typer.echo("Valid configuration")
+
+
+@app.command()
+def clear_cache(
+    provider: str = typer.Option("osm", "--provider", help="Cache namespace: osm, mapbox, custom, or all."),
+    cache_dir: Path = typer.Option(Path(".cache/tiles"), "--cache-dir", help="Base cache directory."),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation prompt."),
+) -> None:
+    provider_name = provider.strip().lower()
+    if provider_name not in {"osm", "mapbox", "custom", "all"}:
+        raise typer.BadParameter("--provider must be one of: osm, mapbox, custom, all")
+
+    targets = [cache_dir] if provider_name == "all" else [cache_dir / provider_name]
+    existing_targets = [target for target in targets if target.exists()]
+    if not existing_targets:
+        typer.echo("No cache directory found to clear.")
+        return
+
+    for target in existing_targets:
+        if not yes and not typer.confirm(f"Delete cache at '{target}'?"):
+            typer.echo("Cancelled.")
+            return
+        shutil.rmtree(target)
+        typer.echo(f"Cleared cache: {target}")
 
 
 @app.command()

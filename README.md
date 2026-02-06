@@ -9,6 +9,7 @@ Generate short vertical real-estate map videos from geographic inputs using Pyth
 - Deterministic rendering with a seed
 - Audio mix with background music + voiceover and ducking
 - CLI commands for render/preview/validate/demo
+- CLI command to clear tile cache quickly (`clear-cache`)
 
 ## Installation
 ```bash
@@ -31,6 +32,7 @@ geovideo demo --out demo.mp4 --verbose
 
 ## Provider setup
 - **OSM (default)**: no API key required.
+  Set a clear `provider.user_agent` (or `--user-agent`) to comply with tile usage policy.
 - **Mapbox**: set `provider.name=mapbox` and `provider.api_key`.
 - **Custom**: set `provider.name=custom` and `provider.url_template`.
 
@@ -70,6 +72,7 @@ geovideo render \
   --height 1920 \
   --provider mapbox \
   --api-key "$MAPBOX_TOKEN" \
+  --user-agent "geovideo/0.1 (+mailto:you@example.com)" \
   --seed 123 \
   --verbose
 ```
@@ -82,6 +85,11 @@ geovideo preview --input examples/project.sample.json --frame-time 3.2 --out fra
 ### Validate config
 ```bash
 geovideo validate --input examples/project.sample.json
+```
+
+### Clear tile cache
+```bash
+geovideo clear-cache --provider osm --yes
 ```
 
 ## Troubleshooting

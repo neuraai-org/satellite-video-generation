@@ -5,7 +5,13 @@ from pathlib import Path
 from geovideo.providers.base import TileProvider
 
 
-def build_mapbox_provider(cache_dir: str, api_key: str, max_retries: int, throttle_s: float) -> TileProvider:
+def build_mapbox_provider(
+    cache_dir: str,
+    api_key: str,
+    max_retries: int,
+    throttle_s: float,
+    user_agent: str | None = None,
+) -> TileProvider:
     return TileProvider(
         name="mapbox",
         url_template=(
@@ -13,6 +19,7 @@ def build_mapbox_provider(cache_dir: str, api_key: str, max_retries: int, thrott
         ),
         attribution="© Mapbox © OpenStreetMap",
         api_key=api_key,
+        user_agent=user_agent,
         cache_dir=Path(cache_dir),
         max_retries=max_retries,
         throttle_s=throttle_s,
