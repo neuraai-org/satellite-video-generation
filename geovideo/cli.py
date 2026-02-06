@@ -8,7 +8,7 @@ from typing import Optional
 
 import numpy as np
 import typer
-from moviepy import VideoClip
+from moviepy.video.VideoClip import VideoClip
 
 from geovideo.audio import load_audio, mix_audio
 from geovideo.camera import CameraState, auto_camera

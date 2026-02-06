@@ -1,17 +1,31 @@
 {
   "center": {"name": "Trung tâm", "lat": 21.028511, "lon": 105.804817},
   "pois": [
-    {"name": "Trường học", "lat": 21.0309, "lon": 105.8072, "type": "school"},
-    {"name": "Chợ địa phương", "lat": 21.0267, "lon": 105.8003, "type": "market"},
-    {"name": "Quán ăn", "lat": 21.0272, "lon": 105.8101, "type": "food"},
-    {"name": "Công viên", "lat": 21.0321, "lon": 105.7992, "type": "other"}
+    {"name": "Trường THCS Trần Quang Khải", "lat": 21.0309, "lon": 105.8072, "type": "school"},
+    {"name": "Chợ Ninh Đông", "lat": 21.0328, "lon": 105.8107, "type": "market"},
+    {"name": "Chợ Phong", "lat": 21.0267, "lon": 105.8003, "type": "market"},
+    {"name": "Quán ăn", "lat": 21.0272, "lon": 105.8101, "type": "food"}
   ],
   "style": {
     "width": 1080,
     "height": 1920,
     "fps": 30,
-    "subtitle": "Khu vực trung tâm Hà Nội",
-    "show_polygon": false,
+    "margin_ratio": 0.06,
+    "subtitle": "Một phút giới thiệu đầy đủ về tiện ích thông tin lô đất #thienminhbyds ... thêm",
+    "show_polygon": true,
+    "ui_preset": "social_map",
+    "social_search_left_text": "Thiên Minh",
+    "social_search_right_text": "Tìm kiếm",
+    "social_center_label": "Vị trí lô đất",
+    "social_account_label": "Thiên Minh",
+    "social_zoom_factor": 1.28,
+    "show_social_chrome": false,
+    "polygon_points": [
+      {"name": "A", "lat": 21.0328, "lon": 105.8022},
+      {"name": "B", "lat": 21.0320, "lon": 105.8108},
+      {"name": "C", "lat": 21.0249, "lon": 105.8096},
+      {"name": "D", "lat": 21.0254, "lon": 105.8020}
+    ],
     "overlay_path": null,
     "watermark_text": "© OpenStreetMap contributors"
   },
@@ -21,7 +35,7 @@
     "poi_stagger": 0.9,
     "ring_period": 1.6,
     "ease": "ease_in_out",
-    "camera_start_zoom": 15,
+    "camera_start_zoom": 16,
     "camera_end_zoom": 16
   },
   "output": {

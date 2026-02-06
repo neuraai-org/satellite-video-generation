@@ -6,6 +6,7 @@ Generate short vertical real-estate map videos from geographic inputs using Pyth
 - Satellite or street basemaps via OSM/Mapbox/custom tiles
 - Animated pins, ripple rings, and labels (UTF-8/Vietnamese supported)
 - Optional polygon boundaries and overlay UI PNG
+- `social_map` UI preset for TikTok-style framing (top search bar, right rail, bottom chrome)
 - Deterministic rendering with a seed
 - Audio mix with background music + voiceover and ducking
 - CLI commands for render/preview/validate/demo

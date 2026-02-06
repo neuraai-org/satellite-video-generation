@@ -14,11 +14,22 @@ class LabelPlacement:
 
 
 def load_font(font_path: Optional[str], size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    candidates = []
     if font_path:
+        candidates.append(font_path)
+    # Better default than bitmap fallback for UI-heavy frames.
+    candidates.extend(
+        [
+            "DejaVuSans-Bold.ttf",
+            "DejaVuSans.ttf",
+            "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+        ]
+    )
+    for candidate in candidates:
         try:
-            return ImageFont.truetype(font_path, size=size)
+            return ImageFont.truetype(candidate, size=size)
         except OSError:
-            pass
+            continue
     return ImageFont.load_default()
 
 
