@@ -1,24 +1,17 @@
-import pytest
-
-from geovideo.timeline import Keyframe, build_timeline
-
-
-def test_build_timeline_interpolation():
-    keyframes = [Keyframe(time_s=0, value=0), Keyframe(time_s=1, value=10)]
-    timeline = build_timeline(keyframes, fps=2)
-    assert timeline == [0, 5, 10]
+from geovideo.schemas import TimelineConfig
+from geovideo.timeline import build_poi_cues, timeline_state_at
 
 
-def test_build_timeline_constant_after_end():
-    keyframes = [Keyframe(time_s=0, value=3)]
-    timeline = build_timeline(keyframes, fps=1)
-    assert timeline == [3]
+def test_build_poi_cues():
+    cfg = TimelineConfig(duration=5.0, intro_delay=1.0, poi_stagger=0.5)
+    cues = build_poi_cues(3, cfg)
+    assert cues[0].start == 1.0
+    assert cues[1].start == 1.5
+    assert cues[2].start == 2.0
 
 
-def test_build_timeline_ease_in_out():
-    keyframes = [Keyframe(time_s=0, value=0, easing="ease_in"), Keyframe(time_s=1, value=1)]
-    timeline = build_timeline(keyframes, fps=4)
-    assert timeline[0] == 0
-    assert timeline[-1] == 1
-    assert timeline[1] == pytest.approx(0.0625)
-    assert timeline[2] == pytest.approx(0.25)
+def test_timeline_state():
+    cfg = TimelineConfig(duration=5.0, intro_delay=0.0, poi_stagger=1.0)
+    state = timeline_state_at(1.2, 2, cfg, default_zoom=12)
+    assert state.active_index == 1
+    assert 0.0 <= state.reveal_progress <= 1.0

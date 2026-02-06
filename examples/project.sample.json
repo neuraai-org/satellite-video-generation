@@ -1,95 +1,48 @@
 {
-  "title": "Sample Flight",
-  "scenes": [
-    {
-      "name": "Downtown glide",
-      "camera_path": [
-        {
-          "time_s": 0,
-          "position": {
-            "lat": 37.7749,
-            "lon": -122.4194
-          },
-          "zoom": 11.5,
-          "bearing": 20,
-          "pitch": 45,
-          "roll": 0,
-          "fov": 45,
-          "easing": "linear"
-        },
-        {
-          "time_s": 4,
-          "position": {
-            "lat": 37.7842,
-            "lon": -122.4094
-          },
-          "zoom": 12.3,
-          "bearing": 40,
-          "pitch": 50,
-          "roll": 0,
-          "fov": 45,
-          "easing": "linear"
-        }
-      ],
-      "pois": [
-        {
-          "name": "SF City Hall",
-          "location": {
-            "lat": 37.7793,
-            "lon": -122.4192
-          }
-        },
-        {
-          "name": "Union Square",
-          "location": {
-            "lat": 37.7879,
-            "lon": -122.4075
-          }
-        }
-      ]
-    },
-    {
-      "name": "Waterfront sweep",
-      "camera_path": [
-        {
-          "time_s": 0,
-          "position": {
-            "lat": 37.8086,
-            "lon": -122.4098
-          },
-          "zoom": 12.8,
-          "bearing": 95,
-          "pitch": 55,
-          "roll": 0,
-          "fov": 45,
-          "easing": "linear"
-        },
-        {
-          "time_s": 5,
-          "position": {
-            "lat": 37.8044,
-            "lon": -122.4008
-          },
-          "zoom": 13.1,
-          "bearing": 120,
-          "pitch": 60,
-          "roll": 0,
-          "fov": 45,
-          "easing": "linear"
-        }
-      ],
-      "pois": []
-    }
+  "center": {"name": "Trung tâm", "lat": 21.028511, "lon": 105.804817},
+  "pois": [
+    {"name": "Trường học", "lat": 21.0309, "lon": 105.8072, "type": "school"},
+    {"name": "Chợ địa phương", "lat": 21.0267, "lon": 105.8003, "type": "market"},
+    {"name": "Quán ăn", "lat": 21.0272, "lon": 105.8101, "type": "food"},
+    {"name": "Công viên", "lat": 21.0321, "lon": 105.7992, "type": "other"}
   ],
-  "camera": {
-    "position": {
-      "lat": 37.7749,
-      "lon": -122.4194
-    },
-    "zoom": 11.0,
-    "bearing": 0,
-    "pitch": 35,
-    "roll": 0,
-    "fov": 45
+  "style": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "subtitle": "Khu vực trung tâm Hà Nội",
+    "show_polygon": false,
+    "overlay_path": null,
+    "watermark_text": "© OpenStreetMap contributors"
+  },
+  "timeline": {
+    "duration": 10.0,
+    "intro_delay": 0.6,
+    "poi_stagger": 0.9,
+    "ring_period": 1.6,
+    "ease": "ease_in_out",
+    "camera_start_zoom": 15,
+    "camera_end_zoom": 16
+  },
+  "output": {
+    "path": "demo.mp4",
+    "crf": 18,
+    "preset": "medium",
+    "faststart": true
+  },
+  "provider": {
+    "name": "osm",
+    "cache_dir": ".cache/tiles",
+    "max_retries": 3,
+    "throttle_s": 0.15
+  },
+  "audio": {
+    "music_path": null,
+    "voiceover_path": null,
+    "music_volume": 0.5,
+    "voiceover_volume": 1.0,
+    "ducking_ratio": 0.35,
+    "fade_in": 0.4,
+    "fade_out": 0.6
   }
 }

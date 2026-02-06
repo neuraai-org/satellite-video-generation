@@ -1,36 +1,32 @@
 [build-system]
-requires = ["hatchling>=1.21.0"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "geovideo"
 version = "0.1.0"
-description = "Tools for building geospatial video projects."
+description = "Generate vertical real-estate map videos from geographic inputs."
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
-authors = [{name = "GeoVideo Contributors"}]
-keywords = ["geospatial", "video", "mapping"]
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "License :: OSI Approved :: MIT License",
-]
 dependencies = [
-  "moviepy>=1.0",
-  "numpy>=1.24",
-  "opencv-python>=4.8",
-  "pillow>=10.0",
-  "pydantic>=2.5",
-  "typer>=0.9",
+  "moviepy>=1.0.3",
+  "opencv-python>=4.9.0",
+  "pillow>=10.2.0",
+  "numpy>=1.26.0",
+  "pydantic>=2.6.0",
+  "typer>=0.9.0",
+  "requests>=2.31.0",
 ]
-
-[project.optional-dependencies]
-test = ["pytest>=7.4"]
 
 [project.scripts]
-geovideo = "geovideo.cli:main"
+geovideo = "geovideo.cli:app"
 
-[tool.hatch.build.targets.wheel]
-packages = ["geovideo"]
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["geovideo*"]
+
+[tool.pytest.ini_options]
+addopts = "-q"

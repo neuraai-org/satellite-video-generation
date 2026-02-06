@@ -1,5 +1,3 @@
-"""Command-line entry point for GeoVideo."""
-
 from __future__ import annotations
 
 import json
@@ -7,82 +5,148 @@ import random
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
 import typer
+from moviepy.editor import AudioFileClip, VideoClip
 
-from .camera import auto_frame
-from .config import ProjectConfig
-from .geo import Coordinate
-from .schemas import CameraModel, CoordinateModel, Project
+from geovideo.audio import load_audio, mix_audio
+from geovideo.camera import CameraState, auto_camera
+from geovideo.compositor import Compositor, FrameContext
+from geovideo.providers import build_provider
+from geovideo.schemas import InputConfig
 
-app = typer.Typer(help="GeoVideo project helper")
+app = typer.Typer(help="Generate vertical real-estate map videos from geographic inputs.")
 
 
-def _set_seed(seed: Optional[int]) -> None:
+def _load_config(path: Path) -> InputConfig:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return InputConfig.model_validate(data)
+
+
+def _build_camera(config: InputConfig, fit: str) -> CameraState:
+    points = [(poi.lat, poi.lon) for poi in config.pois]
+    if fit == "center":
+        zoom_override = config.timeline.camera_start_zoom or config.timeline.camera_end_zoom
+        return auto_camera(
+            (config.center.lat, config.center.lon),
+            points,
+            config.style.width,
+            config.style.height,
+            config.style.margin_ratio,
+            zoom_override=zoom_override,
+        )
+    return auto_camera(
+        (config.center.lat, config.center.lon),
+        points,
+        config.style.width,
+        config.style.height,
+        config.style.margin_ratio,
+    )
+
+
+def _render_video(config: InputConfig, seed: Optional[int], fit: str, verbose: bool) -> None:
     if seed is not None:
         random.seed(seed)
+        np.random.seed(seed)
+    provider = build_provider(config.provider)
+    camera = _build_camera(config, fit)
+    compositor = Compositor(config, provider)
 
+    def make_frame(t: float) -> np.ndarray:
+        ctx = FrameContext(time_s=t, camera=camera)
+        return compositor.render_frame(ctx)
 
-def _load_project(path: Path) -> Project:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return Project.model_validate(data)
+    clip = VideoClip(make_frame, duration=config.timeline.duration)
+    if verbose:
+        typer.echo("Rendering video frames...")
+
+    tracks = load_audio(config.audio, config.timeline.duration)
+    audio = mix_audio(tracks, config.audio)
+    if audio:
+        clip = clip.set_audio(audio)
+
+    output = Path(config.output.path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    ffmpeg_params = []
+    if config.output.faststart:
+        ffmpeg_params += ["-movflags", "+faststart"]
+    ffmpeg_params += ["-pix_fmt", "yuv420p", "-crf", str(config.output.crf)]
+    codec_params = {"codec": "libx264", "audio_codec": "aac", "fps": config.style.fps}
+    if config.output.bitrate:
+        codec_params["bitrate"] = config.output.bitrate
+    clip.write_videofile(
+        str(output),
+        **codec_params,
+        preset=config.output.preset,
+        ffmpeg_params=ffmpeg_params,
+        threads=4,
+        logger="bar" if verbose else None,
+    )
 
 
 @app.command()
 def render(
-    project_file: Path = typer.Option(..., "--project", exists=True, help="Path to project JSON"),
-    output: Path = typer.Option(Path("output.mp4"), "--output", help="Output video path"),
-    seed: Optional[int] = typer.Option(None, help="Random seed for deterministic rendering"),
+    input: Path = typer.Option(..., "--input", exists=True),
+    out: Optional[Path] = typer.Option(None, "--out"),
+    fps: Optional[int] = typer.Option(None, "--fps"),
+    duration: Optional[float] = typer.Option(None, "--duration"),
+    width: Optional[int] = typer.Option(None, "--width"),
+    height: Optional[int] = typer.Option(None, "--height"),
+    provider: Optional[str] = typer.Option(None, "--provider"),
+    api_key: Optional[str] = typer.Option(None, "--api-key"),
+    cache_dir: Optional[str] = typer.Option(None, "--cache-dir"),
+    seed: Optional[int] = typer.Option(None, "--seed"),
+    fit: str = typer.Option("all", "--fit"),
+    verbose: bool = typer.Option(False, "--verbose"),
 ) -> None:
-    """Render a project to a video file."""
-
-    _set_seed(seed)
-    project = _load_project(project_file)
-    typer.echo(f"Rendering '{project.title}' to {output}")
+    config = _load_config(input)
+    if out:
+        config.output.path = str(out)
+    if fps:
+        config.style.fps = fps
+    if duration:
+        config.timeline.duration = duration
+    if width:
+        config.style.width = width
+    if height:
+        config.style.height = height
+    if provider:
+        config.provider.name = provider
+    if api_key:
+        config.provider.api_key = api_key
+    if cache_dir:
+        config.provider.cache_dir = cache_dir
+    config = InputConfig.model_validate(config.model_dump())
+    _render_video(config, seed, fit, verbose)
 
 
 @app.command()
 def preview(
-    project_file: Path = typer.Option(..., "--project", exists=True, help="Path to project JSON"),
-    seed: Optional[int] = typer.Option(None, help="Random seed for deterministic rendering"),
+    input: Path = typer.Option(..., "--input", exists=True),
+    frame_time: float = typer.Option(3.2, "--frame-time"),
+    out: Path = typer.Option(..., "--out"),
 ) -> None:
-    """Preview project metadata."""
+    config = _load_config(input)
+    provider = build_provider(config.provider)
+    camera = _build_camera(config, fit="all")
+    compositor = Compositor(config, provider)
+    ctx = FrameContext(time_s=frame_time, camera=camera)
+    frame = compositor.render_frame(ctx)
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
+    import cv2
 
-    _set_seed(seed)
-    project = _load_project(project_file)
-    typer.echo(f"Previewing '{project.title}' with {len(project.scenes)} scenes")
+    cv2.imwrite(str(out), frame)
 
 
 @app.command()
-def validate(
-    project_file: Path = typer.Option(..., "--project", exists=True, help="Path to project JSON"),
-) -> None:
-    """Validate a project file against the schema."""
-
-    project = _load_project(project_file)
-    typer.echo(f"Project '{project.title}' is valid with {len(project.scenes)} scenes")
+def validate(input: Path = typer.Option(..., "--input", exists=True)) -> None:
+    _ = _load_config(input)
+    typer.echo("Valid configuration")
 
 
 @app.command()
-def demo(
-    output: Path = typer.Option(Path("demo.json"), "--output", help="Output demo project JSON"),
-) -> None:
-    """Generate a demo project."""
-
-    config = ProjectConfig.from_root(Path.cwd())
-    coords = [Coordinate(lat=37.7749, lon=-122.4194), Coordinate(lat=34.0522, lon=-118.2437)]
-    camera = auto_frame(coords, viewport_px=(1280, 720))
-    project = Project(
-        title="Demo",
-        scenes=[],
-        camera=CameraModel(position=CoordinateModel(lat=camera.position.lat, lon=camera.position.lon), zoom=camera.zoom),
-    )
-    output.write_text(project.model_dump_json(indent=2), encoding="utf-8")
-    typer.echo(f"Demo project written to {output} (assets dir: {config.assets_dir})")
-
-
-def main() -> None:
-    app()
-
-
-if __name__ == "__main__":
-    main()
+def demo(out: Path = typer.Option("demo.mp4", "--out"), verbose: bool = False) -> None:
+    sample = Path("examples/project.sample.json")
+    config = _load_config(sample)
+    config.output.path = str(out)
+    _render_video(config, seed=42, fit="all", verbose=verbose)
