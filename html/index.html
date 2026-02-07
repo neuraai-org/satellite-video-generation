@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Estate Ad Map Video</title>
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Overlay captions / branding -->
+  <div id="overlay">
+    <img id="logo" src="./assets/logo.png" alt="logo" />
+    <div id="headline">Luxury 2BR Apartment • District 2</div>
+    <div id="subline">3 mins to Metro • River View • From $220,000</div>
+    <div id="cta">Book a tour: +84 900 000 000</div>
+  </div>
+
+  <script src="./capture.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
